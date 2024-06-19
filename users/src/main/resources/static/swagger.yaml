@@ -1,0 +1,230 @@
+openapi: 3.1.0
+info:
+  title: API genérica de usuários. 
+  summary:  
+  description: |
+    Acesso à api é feito através de um API KEY.
+    Persiste o email e a senha do usuário com PostgresSQL.
+    Criptografa a senha do usuário. 
+    Oferece um endpoint de autenticação.
+  termsOfService: https://users.com/terms/
+  contact:
+    name: API Support
+    url: https://www.users.com/support
+    email: support@users.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.1
+
+externalDocs:
+  description: Find out more about Swagger
+  url: 'http://swagger.io'
+
+servers:
+  - url: http://localhost:8080/
+    description: The local development API server
+
+paths:
+  /users:
+    get:
+      summary: Consulta todos os usuários com paginação
+      tags:
+        - Pegar USERS
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Page size
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Retornou a lista de USERS com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserDTO'
+                  totalElements:
+                    type: integer
+                    example: 100
+                  totalPages:
+                    type: integer
+                    example: 10
+                  size:
+                    type: integer
+                    example: 10
+                  number:
+                    type: integer
+                    example: 1
+                  numberOfElements:
+                    type: integer
+                    example: 10
+                  first:
+                    type: boolean
+                    example: false
+        '400':
+          $ref: '#/components/responses/IllegalInput'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/GeneralError'
+
+    post:
+      summary: Salva uma TAG no database.
+      operationId: salvaTAG
+      tags:
+        - Salvar TAG
+      description: |
+        Salva a TAG se o conteúdo dela for único no database. 
+        Registra o momento de criação e o estado inicial de validez.
+      requestBody:
+        description: TagCreationDTO contendo o conteúdo da tag, a data de criação e a informação de validez
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagCreationDTO'
+      responses:
+        '204':
+          description: Tag criada com sucesso!
+          content:
+            application;json:
+              schema:
+                $ref: '#components/schemas/TagDTO'
+        '400':
+          $ref: '#/components/responses/IllegalInput'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/GeneralError'
+
+    delete:
+      summary: Deleta uma TAG do database
+      operationId: deletaTag
+      tags:
+        - Deletar TAG
+      description: Deleta uma tag do database
+      parameters:
+          - name: id
+            in: path
+            description: ID da tag a ser deletada
+            required: true
+            schema:
+              type: string
+      responses:
+        '204':
+          description: Tag deletada com sucesso
+        '404':
+          description: Tag não encontrada
+        '500':
+          description: Erro interno do servidor ao deletar a tag
+
+  /validar:
+    get:
+      summary: Confere a existência da TAG no database pelo conteúdo.
+      operationId: tagCheck
+      tags:
+        - Conferir TAG
+      description: Recupera a TAG e seus detalhes a partir do conteúdo da TAG.
+      parameters:
+        - name: content
+          in: query
+          description: O conteúdo da TAG a ser recuperada
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Encontrou uma TAG com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagDTO'
+        '400':
+          $ref: '#/components/responses/IllegalInput'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/GeneralError'
+
+
+components:
+  schemas:
+    TagCreationDTO:
+      type: object
+      properties:
+        content: 
+          type: string
+          description: O conteúdo da tag
+          example: vampires cookie wonderland
+        createdAt:
+          type: string
+          format: date-time
+          description: O registro de criação da tag.
+        valid:
+          type: boolean
+          description: Indica se a tag é considerada válida.
+    TagDTO:
+      type: object
+      properties:
+        id:
+          type: long
+        content: 
+          type: string
+          description: O conteúdo da tag
+          example: vampires cookie wonderland
+        createdAt:
+          type: string
+          format: date-time
+          description: O registro de criação da tag.
+        valid:
+          type: boolean
+          description: Indica se a tag é considerada válida.
+        updatedAt:
+          type: string
+          format: date-time
+          description: O registro do último update da tag.
+    GeneralError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+
+  responses:
+    IllegalInput:
+      description: Illegal input for operation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralError'
+    NotFound:
+      description: Entity not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralError'
+    GeneralError:
+      description: General error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralError'
+
+
