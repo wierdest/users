@@ -164,40 +164,32 @@ paths:
 
 components:
   schemas:
-    TagCreationDTO:
-      type: object
-      properties:
-        content: 
-          type: string
-          description: O conteúdo da tag
-          example: vampires cookie wonderland
-        createdAt:
-          type: string
-          format: date-time
-          description: O registro de criação da tag.
-        valid:
-          type: boolean
-          description: Indica se a tag é considerada válida.
-    TagDTO:
+    UserDTO:
       type: object
       properties:
         id:
           type: long
-        content: 
+          description: a id do usuario no db
+        email:
           type: string
-          description: O conteúdo da tag
-          example: vampires cookie wonderland
+          description: o email do usuário
         createdAt:
+            type: string
+            format: date-time
+            description: O registro de criação da usuário.
+        accessedAt:
+            type: string
+            format: date-time
+            description: O registro do último acesso do usuário.
+    UserCreationDTO:
+      type: object
+      properties:
+        email:
+        type: string
+        description: o email do usuário
+        password:
           type: string
-          format: date-time
-          description: O registro de criação da tag.
-        valid:
-          type: boolean
-          description: Indica se a tag é considerada válida.
-        updatedAt:
-          type: string
-          format: date-time
-          description: O registro do último update da tag.
+          description: A senha que o usuário gostaria de cadastrar
     GeneralError:
       type: object
       properties:
