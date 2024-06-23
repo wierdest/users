@@ -84,27 +84,28 @@ paths:
           $ref: '#/components/responses/GeneralError'
 
     post:
-      summary: Salva uma TAG no database.
-      operationId: salvaTAG
+      summary: Cadastra um usuário no database.
+      operationId: cadastrarUsuario
       tags:
-        - Salvar TAG
+        - Cadastrar USER
       description: |
-        Salva a TAG se o conteúdo dela for único no database. 
-        Registra o momento de criação e o estado inicial de validez.
+        Cadastra o USER se o email for único no database .
+        Criptografa a senha inserida
+        Registra o momento de criação
       requestBody:
-        description: TagCreationDTO contendo o conteúdo da tag, a data de criação e a informação de validez
+        description: UserCreationDTO contendo o email a ser validado e a senha a ser criptografada
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TagCreationDTO'
+              $ref: '#/components/schemas/UserCreationDTO'
       responses:
         '204':
-          description: Tag criada com sucesso!
+          description: User cadastrado com sucesso. Retorna um AuthorizationToken
           content:
             application;json:
               schema:
-                $ref: '#components/schemas/TagDTO'
+                $ref: '#/components/schemas/AuthorizationToken'
         '400':
           $ref: '#/components/responses/IllegalInput'
         '404':
@@ -181,6 +182,7 @@ components:
             type: string
             format: date-time
             description: O registro do último acesso do usuário.
+    
     UserCreationDTO:
       type: object
       properties:
@@ -190,6 +192,23 @@ components:
         password:
           type: string
           description: A senha que o usuário gostaria de cadastrar
+    
+    AuthorizationToken:
+      type: object
+      properties:
+        token:
+          type: string
+          description: O token de autenticação JWT
+        expiresAt:
+          type: string
+          format: date-time
+          description: Data e hora de expiração do token
+        type:
+          type: string
+          description: Tipo de token (por exemplo, Bearer)
+          example: Bearer
+
+    
     GeneralError:
       type: object
       properties:
