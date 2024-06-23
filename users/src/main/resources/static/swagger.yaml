@@ -26,6 +26,7 @@ servers:
     description: The local development API server
 
 paths:
+  
   /users:
     get:
       summary: Consulta todos os usuários com paginação
@@ -114,54 +115,53 @@ paths:
           $ref: '#/components/responses/GeneralError'
 
     delete:
-      summary: Deleta uma TAG do database
-      operationId: deletaTag
+      summary: Deleta um usuário do database
+      operationId: deletaUsuario
       tags:
-        - Deletar TAG
-      description: Deleta uma tag do database
+        - Deletar USER
+      description: Deleta um usuário do database
       parameters:
           - name: id
             in: path
-            description: ID da tag a ser deletada
+            description: ID do usuário a ser deletado
             required: true
             schema:
               type: string
       responses:
         '204':
-          description: Tag deletada com sucesso
+          description: User deletado com sucesso. No content.
         '404':
-          description: Tag não encontrada
+        $ref: '#/components/responses/NotFound'
         '500':
-          description: Erro interno do servidor ao deletar a tag
-
-  /validar:
+          $ref: '#/components/responses/GeneralError'
+  
+  /auth:
     get:
-      summary: Confere a existência da TAG no database pelo conteúdo.
-      operationId: tagCheck
+      summary: Confere a existência do USER no database pelo email.
+      operationId: userCheck
       tags:
-        - Conferir TAG
-      description: Recupera a TAG e seus detalhes a partir do conteúdo da TAG.
+        - Conferir USER
+      description: Recupera o USER e seus detalhes a partir do email do usuário.
       parameters:
-        - name: content
+        - name: email
           in: query
-          description: O conteúdo da TAG a ser recuperada
+          description: O email do USER a ser recuperado
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: Encontrou uma TAG com sucesso
+          description: Encontrou um USER com sucesso
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TagDTO'
+                $ref: '#/components/schemas/UserDTO'
         '400':
           $ref: '#/components/responses/IllegalInput'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/GeneralError'
-
 
 components:
   schemas:
@@ -208,7 +208,6 @@ components:
           description: Tipo de token (por exemplo, Bearer)
           example: Bearer
 
-    
     GeneralError:
       type: object
       properties:
