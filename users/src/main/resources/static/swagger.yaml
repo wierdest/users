@@ -90,16 +90,16 @@ paths:
       tags:
         - Cadastrar USER
       description: |
-        Cadastra o USER se o email for único no database .
-        Criptografa a senha inserida
-        Registra o momento de criação
+        Cadastra o USER se o email for único no database.
+        Criptografa a senha inserida.
+        Registra o momento de criação.
       requestBody:
-        description: UserCreationDTO contendo o email a ser validado e a senha a ser criptografada
+        description: UserLoginDTO contendo o email a ser validado e a senha a ser criptografada
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCreationDTO'
+              $ref: '#/components/schemas/UserLoginDTO'
       responses:
         '204':
           description: User cadastrado com sucesso. Retorna um AuthorizationToken
@@ -137,25 +137,28 @@ paths:
   
   /auth:
     get:
-      summary: Confere a existência do USER no database pelo email.
-      operationId: userCheck
+      summary: Autoriza o USER no database a partir da correspondência do email e senha inseridos
+      operationId: userAuth
       tags:
         - Conferir USER
-      description: Recupera o USER e seus detalhes a partir do email do usuário.
-      parameters:
-        - name: email
-          in: query
-          description: O email do USER a ser recuperado
+      description: |
+        Confere se o email inserido existe
+        Confere a correspondência entre a senha inserida e a cadastrada
+        Retorna um AuthorizationToken 
+      requestBody:
+          description: UserLoginDTO contendo email e senha do usuário para autenticação
           required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Encontrou um USER com sucesso
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDTO'
+                $ref: '#/components/schemas/UserLoginDTO'
+      responses:
+        '200':
+          description: Autenticado com sucesso. Retorna um AuthorizationToken.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationToken'
         '400':
           $ref: '#/components/responses/IllegalInput'
         '404':
@@ -183,12 +186,12 @@ components:
             format: date-time
             description: O registro do último acesso do usuário.
     
-    UserCreationDTO:
+    UserLoginDTO:
       type: object
       properties:
         email:
-        type: string
-        description: o email do usuário
+          type: string
+          description: o email do usuário
         password:
           type: string
           description: A senha que o usuário gostaria de cadastrar
