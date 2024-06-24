@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "SecretKeyGenerator",
+            "request": "launch",
+            "mainClass": "com.users.users.util.SecretKeyGenerator",
+            "projectName": "users"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-UsersApplication<users>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
