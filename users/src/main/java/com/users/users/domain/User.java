@@ -32,8 +32,10 @@ public class User {
     @Column(nullable=false)
     private boolean authenticated;
 
-    public User(String email2, String encryptedPassword, LocalDateTime now) {
-        //TODO Auto-generated constructor stub
+    public User(String email, String encryptedPassword, LocalDateTime now) {
+       this.email = email;
+       this.password = encryptedPassword;
+       this.createdAt = now;
     }
 
     public Long getId() {

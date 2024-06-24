@@ -104,7 +104,7 @@ paths:
         '204':
           description: User cadastrado com sucesso. Retorna um AuthorizationToken
           content:
-            application;json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/AuthorizationToken'
         '400':
