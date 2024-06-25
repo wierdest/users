@@ -32,6 +32,8 @@ public class User {
     @Column(nullable=false)
     private boolean authenticated;
 
+    public User() {}
+
     public User(String email, String encryptedPassword, LocalDateTime now) {
        this.email = email;
        this.password = encryptedPassword;

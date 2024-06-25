@@ -135,23 +135,23 @@ paths:
         '500':
           $ref: '#/components/responses/GeneralError'
   
-  /auth:
+   /auth:
     get:
-      summary: Autoriza o usuário
+      summary: Confere se o JWT do usuário é válido
       operationId: userAuth
       tags:
         - Conferir USER
       description: |
-        Confere se o email inserido existe
-        Confere a correspondência entre a senha inserida e a cadastrada
+        Confere se o JWT inserido no header Authorization é válido
         Retorna um AuthorizationToken 
-      requestBody:
-          description: UserLoginDTO contendo email e senha do usuário para autenticação
+      parameters:
+        - in: header
+          name: Authorization
           required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserLoginDTO'
+          schema:
+            type: string
+          description: JWT token no formato Bearer
+          example: Bearer <JWT_TOKEN>
       responses:
         '200':
           description: Autenticado com sucesso. Retorna um AuthorizationToken.
@@ -160,11 +160,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthorizationToken'
         '400':
-          $ref: '#/components/responses/IllegalInput'
-        '404':
-          $ref: '#/components/responses/NotFound'
+          description: Parâmetros de entrada inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Não autorizado. JWT inválido ou expirado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
-          $ref: '#/components/responses/GeneralError'
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 
 
 
@@ -213,6 +226,18 @@ components:
           description: Tipo de token (por exemplo, Bearer)
           example: Bearer
 
+    AuthCheck:
+      type: object
+      properties:
+        token:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+      required:
+        - token
+        - expiresAt
+  
     GeneralError:
       type: object
       properties:
