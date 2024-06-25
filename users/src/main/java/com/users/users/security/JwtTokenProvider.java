@@ -1,6 +1,10 @@
 package com.users.users.security;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.SecretKey;
 
@@ -23,17 +27,30 @@ public class JwtTokenProvider {
     private String secretKey;
 
     @Value("${security.jwt.token.expire-length:3600000}")
-    private long validityInMilliseconds = 3600000;
+    private long validityLimitInMilliseconds = 3600000;
 
-    public String createToken(String email) {
+    public long getValidityLimitInMilliseconds() {
+        return validityLimitInMilliseconds;
+    }
+
+    private String removeBearerPrefix(String token) {
+        if (token.startsWith("Bearer ")) {
+            return token.substring(7);
+        } else {
+            throw new IllegalArgumentException("Token tem formato inválido!");
+        }
+    }
+
+    public String createToken(String email, String profile) {
 
         Date now = new Date();
-        Date validity = new Date(now.getTime() + validityInMilliseconds);
+        Date validity = new Date(now.getTime() + validityLimitInMilliseconds);
 
         return Jwts.builder()
                 .subject(email)
                 .issuedAt(now)
                 .expiration(validity)
+                .claim("profile", profile)
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -45,6 +62,7 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
+            token = removeBearerPrefix(token);
             Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
@@ -65,13 +83,53 @@ public class JwtTokenProvider {
         return false;
     }
 
-    public String getEmailFromToken(String token) {
+    public LocalDateTime getExpirationFromToken(String token) {
+        token = removeBearerPrefix(token);
+
         Claims claims = Jwts.parser()
             .verifyWith(getSigningKey())
             .build()
             .parseSignedClaims(token)
             .getPayload();
+            
+        return claims.getExpiration().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
 
+    public String getEmailFromToken(String token) {
+        token = removeBearerPrefix(token);
+
+        Claims claims = Jwts.parser()
+            .verifyWith(getSigningKey())
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
         return claims.getSubject();
+    }
+
+    public String getProfileFromToken(String token) {
+        token = removeBearerPrefix(token);
+
+        Claims claims = Jwts.parser()
+            .verifyWith(getSigningKey())
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
+        return claims.get("profile", String.class);
+    }
+
+    public Map<String, Object> getEmailAndProfileFromToken(String token) {
+        token = removeBearerPrefix(token);
+
+        Claims claims = Jwts.parser()
+            .verifyWith(getSigningKey())
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
+        String email = claims.getSubject();
+        String profile = (String) claims.get("profile");
+        Map<String, Object> result = new HashMap<>();
+        result.put("email", email);
+        result.put("profile", profile);
+        return result;
     }
 }

@@ -32,12 +32,16 @@ public class User {
     @Column(nullable=false)
     private boolean authenticated;
 
+    @Column(nullable=false)
+    private int profile;
+
     public User() {}
 
-    public User(String email, String encryptedPassword, LocalDateTime now) {
+    public User(String email, String encryptedPassword, LocalDateTime now, UserProfile profile) {
        this.email = email;
        this.password = encryptedPassword;
        this.createdAt = now;
+       this.profile = profile.getCode();
     }
 
     public Long getId() {
@@ -86,6 +90,22 @@ public class User {
 
     public void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
+    }
+
+    public UserProfile getUserProfile() {
+        return UserProfile.fromCode(this.profile);
+    }
+
+    public void setUserProfile(UserProfile profile) {
+        this.profile = profile.getCode();
+    }
+
+    public int getProfile() {
+        return this.profile;
+    }
+
+    public void setProfile(int profile) {
+        this.profile = profile;
     }
 
 }

@@ -25,9 +25,94 @@ servers:
   - url: http://localhost:8080/
     description: The local development API server
 
+components:
+  securitySchemes:
+    BearerAuth:            
+      type: http
+      scheme: bearer
+  schemas:
+    UserDTO:
+      type: object
+      properties:
+        id:
+          type: long
+          description: a id do usuario no db
+        email:
+          type: string
+          description: o email do usuário
+        createdAt:
+            type: string
+            format: date-time
+            description: O registro de criação da usuário.
+        accessedAt:
+            type: string
+            format: date-time
+            description: O registro do último acesso do usuário.
+    
+    UserLoginDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          description: o email do usuário
+        password:
+          type: string
+          description: A senha que o usuário gostaria de cadastrar
+        profileCode:
+          type: integer
+          description: O código (número) do perfil do usuário ADMIN(0), RECRUITER(1), CANDIDATE(2);
+    
+    AuthorizationToken:
+      type: object
+      properties:
+        token:
+          type: string
+          description: O token de autenticação JWT
+        expiresAt:
+          type: string
+          format: date-time
+          description: Data e hora de expiração do token
+        type:
+          type: string
+          description: Tipo de token (por exemplo, Bearer)
+          example: Bearer
+
+    GeneralError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+
+  responses:
+    IllegalInput:
+      description: Illegal input for operation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralError'
+    NotFound:
+      description: Entity not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralError'
+    Unauthorized:
+      description: Token de acesso é inválido ou expirado!
+    GeneralError:
+      description: General error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralError'
+
+
 paths:
   
   /users:
+    
     get:
       summary: Consulta todos os usuários com paginação
       tags:
@@ -90,11 +175,12 @@ paths:
       tags:
         - Cadastrar USER
       description: |
-        Cadastra o USER se o email for único no database.
+        Cadastra o USER se o email for único no database,
+        Atribui o perfil do usuário a partir do código de perfil inserido
         Criptografa a senha inserida.
         Registra o momento de criação.
       requestBody:
-        description: UserLoginDTO contendo o email a ser validado e a senha a ser criptografada
+        description: UserLoginDTO contendo o email a ser validado, a senha a ser criptografada e o código do perfil do usuário
         required: true
         content:
           application/json:
@@ -131,12 +217,14 @@ paths:
         '204':
           description: User deletado com sucesso. No content.
         '404':
-        $ref: '#/components/responses/NotFound'
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/GeneralError'
   
-   /auth:
+  /auth-check:
     get:
+      security:
+        - BearerAuth: []
       summary: Confere se o JWT do usuário é válido
       operationId: userAuth
       tags:
@@ -144,17 +232,9 @@ paths:
       description: |
         Confere se o JWT inserido no header Authorization é válido
         Retorna um AuthorizationToken 
-      parameters:
-        - in: header
-          name: Authorization
-          required: true
-          schema:
-            type: string
-          description: JWT token no formato Bearer
-          example: Bearer <JWT_TOKEN>
       responses:
         '200':
-          description: Autenticado com sucesso. Retorna um AuthorizationToken.
+          description: Autenticado com sucesso. Retorna um AuthorizationToken com o expiration date atualizado.
           content:
             application/json:
               schema:
@@ -164,107 +244,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/IllegalInput'
         '401':
           description: Não autorizado. JWT inválido ou expirado.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Unauthorized'
         '500':
           description: Erro interno do servidor.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-
-
-
-components:
-  schemas:
-    UserDTO:
-      type: object
-      properties:
-        id:
-          type: long
-          description: a id do usuario no db
-        email:
-          type: string
-          description: o email do usuário
-        createdAt:
-            type: string
-            format: date-time
-            description: O registro de criação da usuário.
-        accessedAt:
-            type: string
-            format: date-time
-            description: O registro do último acesso do usuário.
-    
-    UserLoginDTO:
-      type: object
-      properties:
-        email:
-          type: string
-          description: o email do usuário
-        password:
-          type: string
-          description: A senha que o usuário gostaria de cadastrar
-    
-    AuthorizationToken:
-      type: object
-      properties:
-        token:
-          type: string
-          description: O token de autenticação JWT
-        expiresAt:
-          type: string
-          format: date-time
-          description: Data e hora de expiração do token
-        type:
-          type: string
-          description: Tipo de token (por exemplo, Bearer)
-          example: Bearer
-
-    AuthCheck:
-      type: object
-      properties:
-        token:
-          type: string
-        expiresAt:
-          type: string
-          format: date-time
-      required:
-        - token
-        - expiresAt
-  
-    GeneralError:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        message:
-          type: string
-
-  responses:
-    IllegalInput:
-      description: Illegal input for operation.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/GeneralError'
-    NotFound:
-      description: Entity not found.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/GeneralError'
-    GeneralError:
-      description: General error.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/GeneralError'
-
+                $ref: '#/components/schemas/GeneralError'
 

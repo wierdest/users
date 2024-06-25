@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.users.users.domain.User;
+import com.users.users.domain.UserProfile;
 import com.users.users.dtos.AuthorizationToken;
 import com.users.users.dtos.UserDTO;
 import com.users.users.dtos.UserLoginDTO;
@@ -40,15 +41,24 @@ public class UserService {
         String encryptedPassword = passwordEncoder.encode(dto.password());
 
         // Cria o usuário 
-        User user = new User(dto.email(), encryptedPassword, LocalDateTime.now());
+        User user = new User(
+            dto.email(), 
+            encryptedPassword, 
+            LocalDateTime.now(), 
+            UserProfile.fromCode(dto.profileCode())
+        );
+
         user.setAuthenticated(true);
         repository.save(user);
 
         // Gera o JWT
-        String token = jwtTokenProvider.createToken(user.getEmail());
+        String token = jwtTokenProvider.createToken(user.getEmail(), user.getUserProfile().name());
+
+        // Calcula o tempo de expiração do token
+        LocalDateTime expirationTime = LocalDateTime.now().plusSeconds(jwtTokenProvider.getValidityLimitInMilliseconds() / 1000);
 
         // Retorna o AuthorizationToken 
-        return new AuthorizationToken(token, LocalDateTime.now().plusHours(2), "Bearer");
+        return new AuthorizationToken(token, expirationTime, "Bearer");
     }
         
 
