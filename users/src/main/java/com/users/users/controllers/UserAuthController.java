@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.users.users.dtos.AuthorizationToken;
-import com.users.users.services.AuthService;
+import com.users.users.dtos.UserAuthorizationToken;
+import com.users.users.services.UserAuthService;
 
 @RestController
-@RequestMapping("/auth-check")
-public class AuthController {
+@RequestMapping("/users/auth-check")
+public class UserAuthController {
 
     @Autowired
-    private AuthService service;
+    private UserAuthService service;
 
     @GetMapping
     public ResponseEntity<?> checkAuth(@RequestHeader(value = "Authorization", required = true) String authorizationHeader) {
-        Optional<AuthorizationToken> token = service.checkAuthToken(authorizationHeader);
+        Optional<UserAuthorizationToken> token = service.checkUserAuthToken(authorizationHeader);
         if(token.isEmpty()) {
             return new ResponseEntity<String>(
                 "Não autorizado. Token inválido ou expirado!",

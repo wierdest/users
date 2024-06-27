@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.users.users.dtos.AuthorizationToken;
+import com.users.users.dtos.UserAuthorizationToken;
 import com.users.users.dtos.UserDTO;
 import com.users.users.dtos.UserLoginDTO;
 import com.users.users.services.UserService;
@@ -29,9 +29,9 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<AuthorizationToken> registerUser(@RequestBody UserLoginDTO dto) {
-        AuthorizationToken token = service.registerUser(dto);
-        return new ResponseEntity<AuthorizationToken>(token, HttpStatus.CREATED);
+    public ResponseEntity<UserAuthorizationToken> registerUser(@RequestBody UserLoginDTO dto) {
+        UserAuthorizationToken token = service.registerUser(dto);
+        return new ResponseEntity<UserAuthorizationToken>(token, HttpStatus.CREATED);
 
     }
 }

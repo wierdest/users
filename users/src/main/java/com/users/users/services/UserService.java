@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.users.users.domain.User;
 import com.users.users.domain.UserProfile;
-import com.users.users.dtos.AuthorizationToken;
+import com.users.users.dtos.UserAuthorizationToken;
 import com.users.users.dtos.UserDTO;
 import com.users.users.dtos.UserLoginDTO;
 import com.users.users.repository.UserRepository;
@@ -31,7 +31,7 @@ public class UserService {
         return repository.findAll(pageable).map(UserDTO::toDTO);
     }
 
-    public AuthorizationToken registerUser(UserLoginDTO dto) {
+    public UserAuthorizationToken registerUser(UserLoginDTO dto) {
         // Confere se o email é único
         if(repository.existsByEmail(dto.email())) {
             throw new IllegalArgumentException("Email já está em uso!");
@@ -58,10 +58,6 @@ public class UserService {
         LocalDateTime expirationTime = LocalDateTime.now().plusSeconds(jwtTokenProvider.getValidityLimitInMilliseconds() / 1000);
 
         // Retorna o AuthorizationToken 
-        return new AuthorizationToken(token, expirationTime, "Bearer");
+        return new UserAuthorizationToken(token, expirationTime, "Bearer");
     }
-        
-
-
-
 }

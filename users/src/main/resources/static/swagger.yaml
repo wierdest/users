@@ -27,9 +27,14 @@ servers:
 
 components:
   securitySchemes:
+    APIKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
     BearerAuth:            
       type: http
       scheme: bearer
+    
   schemas:
     UserDTO:
       type: object
@@ -108,6 +113,8 @@ components:
           schema:
             $ref: '#/components/schemas/GeneralError'
 
+security:
+  - APIKeyAuth: []
 
 paths:
   
