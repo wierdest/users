@@ -43,6 +43,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authorize -> {
+                    // if I don't permitAll, I can't get the swagger to work
                     authorize.anyRequest().permitAll();
                 }
             )
@@ -50,8 +51,6 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
             )
             .addFilterBefore(apiKeyFilter, UsernamePasswordAuthenticationFilter.class);
-           
-
         return http.build();
     }
 
