@@ -23,7 +23,7 @@ git clone https://github.com/seu-usuario/users-api.git
 cd users-api
 ```
 
-### Crie um database no PostgresSQL. Você pode usar a linah de comando, se usar psql ou uma interface gráfica como pgAdmin ou DBeaver.
+### Crie um database no PostgresSQL. Você pode usar a linha de comando, se usar psql ou uma interface gráfica como pgAdmin ou DBeaver.
 
 ```
   psql -U postgres <OU O SEU USUÁRIO>
